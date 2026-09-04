@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:camera="clr-namespace:CommunityToolkit.Maui.Views;assembly=CommunityToolkit.Maui.Camera" x:Class="MauiJohnWick1.MainPage" Title="Camera Color Sampler" Appearing="OnPageAppearing" Disappearing="OnPageDisappearing">
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:camera="clr-namespace:CommunityToolkit.Maui.Views;assembly=CommunityToolkit.Maui.Camera" x:Class="MauiJohnWick1.MainPage" Title="Camera to CIELAB" Appearing="OnPageAppearing" Disappearing="OnPageDisappearing">
     <Grid RowDefinitions="Auto,*,Auto" Padding="16" RowSpacing="12">
         <Button x:Name="TakePhotoButton" Grid.Row="0" Text="Take Photo" Clicked="OnTakePhotoClicked" />
         <AbsoluteLayout x:Name="PhotoCanvas" Grid.Row="1" BackgroundColor="#202020" SizeChanged="OnPhotoCanvasSizeChanged">
