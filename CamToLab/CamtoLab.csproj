@@ -80,6 +80,21 @@
 
 	<PropertyGroup>
 		<AndroidAdbPath Condition="'$(AndroidAdbPath)' == ''">C:\Program Files (x86)\Android\android-sdk\platform-tools\adb.exe</AndroidAdbPath>
+		<AndroidSigningKeyStore>CamtoLab-release.keystore</AndroidSigningKeyStore>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-android|AnyCPU'">
+	  <AndroidKeyStore>True</AndroidKeyStore>
+	  <AndroidSigningKeyAlias>WazuHonde</AndroidSigningKeyAlias>
+	  <AndroidSigningKeyPass>Poon2348.</AndroidSigningKeyPass>
+	  <AndroidSigningStorePass>Passwordtoohard12.</AndroidSigningStorePass>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-android|AnyCPU'">
+	  <AndroidKeyStore>True</AndroidKeyStore>
+	  <AndroidSigningKeyAlias>WazuHonde</AndroidSigningKeyAlias>
+	  <AndroidSigningKeyPass>Poon2348.</AndroidSigningKeyPass>
+	  <AndroidSigningStorePass>Passwordtoohard12.</AndroidSigningStorePass>
 	</PropertyGroup>
 
 	<Target Name="ReconnectAndroidDevice" BeforeTargets="Install" Condition="'$(TargetFramework)' == 'net10.0-android' and Exists('$(AndroidAdbPath)')">
