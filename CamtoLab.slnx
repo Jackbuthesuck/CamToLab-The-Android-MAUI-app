@@ -1,3 +1,5 @@
 <Solution>
-  <Project Path="MauiJohnWick1/MauiJohnWick1.csproj" />
+  <Project Path="MauiJohnWick1/CamtoLab.csproj">
+    <Deploy Solution="Debug|*" />
+  </Project>
 </Solution>
