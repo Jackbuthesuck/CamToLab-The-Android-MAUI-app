@@ -1,5 +1,6 @@
 ﻿using SkiaSharp;
 using CommunityToolkit.Maui.Core;
+using Microsoft.Maui.ApplicationModel;
 
 namespace MauiJohnWick1
 {
@@ -27,6 +28,7 @@ namespace MauiJohnWick1
         private double _comparisonAHeight;
         private double _comparisonBWidth;
         private double _comparisonBHeight;
+        private bool _cameraPreviewStarted;
         private double _left = 0;
         private double _top = 0;
         private double _selectionWidth = 140;
@@ -52,22 +54,41 @@ namespace MauiJohnWick1
                 if (_imageBytes is not null)
                 {
                     ReleaseCapturedImage();
-                    CameraPreview.IsVisible = true;
-                    await CameraPreview.StartCameraPreview(CancellationToken.None);
+                    await EnsureCameraPermissionAndStartPreviewAsync();
                     return;
                 }
 
-                if (!CameraPreview.IsVisible)
-                {
-                    CameraPreview.IsVisible = true;
-                    await CameraPreview.StartCameraPreview(CancellationToken.None);
-                }
+                if (!await EnsureCameraPermissionAndStartPreviewAsync())
+                    return;
+
                 await CameraPreview.CaptureImage(CancellationToken.None);
             }
             catch (Exception ex)
             {
                 await DisplayAlertAsync("Camera error", ex.Message, "OK");
             }
+        }
+
+        private async Task<bool> EnsureCameraPermissionAndStartPreviewAsync()
+        {
+            PermissionStatus permission = await Permissions.CheckStatusAsync<Permissions.Camera>();
+            if (permission != PermissionStatus.Granted)
+                permission = await Permissions.RequestAsync<Permissions.Camera>();
+
+            if (permission != PermissionStatus.Granted)
+            {
+                await DisplayAlertAsync("Camera permission required", "Allow camera access in the app permissions to use the camera.", "OK");
+                return false;
+            }
+
+            CameraPreview.IsVisible = true;
+            if (!_cameraPreviewStarted)
+            {
+                await CameraPreview.StartCameraPreview(CancellationToken.None);
+                _cameraPreviewStarted = true;
+            }
+
+            return true;
         }
 
         public async Task LoadTestCardAsync()
@@ -145,6 +166,7 @@ namespace MauiJohnWick1
             await MainThread.InvokeOnMainThreadAsync(() =>
             {
                 CameraPreview.StopCameraPreview();
+                _cameraPreviewStarted = false;
                 CameraPreview.IsVisible = false;
                 CapturedImage.ZIndex = 1;
                 CapturedImage.Source = null;
@@ -159,6 +181,7 @@ namespace MauiJohnWick1
         private void ReleaseCapturedImage()
         {
             CameraPreview.StopCameraPreview();
+            _cameraPreviewStarted = false;
             if (!PhotoCanvas.Children.Contains(CameraPreview))
                 PhotoCanvas.Children.Insert(0, CameraPreview);
 
@@ -181,7 +204,6 @@ namespace MauiJohnWick1
             UpdateDisplayMode();
         }
 
-        // The camera preview starts when the page first appears instead of on the first capture tap.
         private async void OnPageAppearing(object? sender, EventArgs e)
         {
             RefreshDisplayMode();
@@ -191,12 +213,11 @@ namespace MauiJohnWick1
 
             try
             {
-                CameraPreview.IsVisible = true;
-                await CameraPreview.StartCameraPreview(CancellationToken.None);
+                await EnsureCameraPermissionAndStartPreviewAsync();
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(ex);
+                await DisplayAlertAsync("Camera error", ex.Message, "OK");
             }
         }
 
@@ -209,6 +230,7 @@ namespace MauiJohnWick1
         private void OnPageDisappearing(object? sender, EventArgs e)
         {
             CameraPreview.StopCameraPreview();
+            _cameraPreviewStarted = false;
         }
 
         // White-standard calibration is persisted as a value, but its marker belongs to one image only.

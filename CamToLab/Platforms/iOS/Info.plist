@@ -4,6 +4,8 @@
 <dict>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>CamtoLab uses the camera to capture photos for color sampling.</string>
 	<key>UIDeviceFamily</key>
 	<array>
 		<integer>1</integer>
