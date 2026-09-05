@@ -1,66 +1,211 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:camera="clr-namespace:CommunityToolkit.Maui.Views;assembly=CommunityToolkit.Maui.Camera" x:Class="MauiJohnWick1.MainPage" Title="Camera to CIELAB" Appearing="OnPageAppearing" Disappearing="OnPageDisappearing">
-    <Grid RowDefinitions="Auto,*,Auto" Padding="16" RowSpacing="12">
-        <Button x:Name="TakePhotoButton" Grid.Row="0" Text="Take Photo" Clicked="OnTakePhotoClicked" />
-        <AbsoluteLayout x:Name="PhotoCanvas" Grid.Row="1" BackgroundColor="#202020" SizeChanged="OnPhotoCanvasSizeChanged">
-            <AbsoluteLayout.GestureRecognizers>
-                <PanGestureRecognizer PanUpdated="OnSelectionPanUpdated" />
-            </AbsoluteLayout.GestureRecognizers>
-            <camera:CameraView x:Name="CameraPreview" MediaCaptured="OnMediaCaptured" IsVisible="False" ZIndex="0" AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All" />
-            <Image x:Name="CapturedImage" Aspect="AspectFit" IsVisible="False" ZIndex="1" AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All" />
-            <Border x:Name="SelectionBox" IsVisible="False" ZIndex="2" InputTransparent="True">
-                <Grid>
-                    <Border x:Name="AreaSelectionVisual" BackgroundColor="#30FFFFFF" Stroke="#FFFF00" StrokeThickness="2" InputTransparent="True" />
-                    <Grid x:Name="SinglePixelVisual" WidthRequest="28" HeightRequest="28" HorizontalOptions="Center" VerticalOptions="Center" InputTransparent="True">
-                        <BoxView Color="#FFFF00" WidthRequest="28" HeightRequest="2" HorizontalOptions="Center" VerticalOptions="Center" />
-                        <BoxView Color="#FFFF00" WidthRequest="2" HeightRequest="28" HorizontalOptions="Center" VerticalOptions="Center" />
-                    </Grid>
-                </Grid>
-            </Border>
-            <Grid x:Name="WhiteStandardMarker" IsVisible="False" ZIndex="3" WidthRequest="18" HeightRequest="18" Opacity="0.45" InputTransparent="True">
-                <BoxView x:Name="WhiteStandardHorizontal" Color="#FFFFFFFF" WidthRequest="18" HeightRequest="1" HorizontalOptions="Center" VerticalOptions="Center" />
-                <BoxView x:Name="WhiteStandardVertical" Color="#FFFFFFFF" WidthRequest="1" HeightRequest="18" HorizontalOptions="Center" VerticalOptions="Center" />
-            </Grid>
-            <Grid x:Name="ComparisonAMarker" IsVisible="False" ZIndex="3" InputTransparent="True">
-                <Border x:Name="ComparisonAAreaVisual" Stroke="#00FF00" StrokeThickness="2" BackgroundColor="#3000FF00" />
-                <Grid x:Name="ComparisonASingleVisual">
-                    <BoxView Color="#00FF00" WidthRequest="24" HeightRequest="2" HorizontalOptions="Center" VerticalOptions="Center" />
-                    <BoxView Color="#00FF00" WidthRequest="2" HeightRequest="24" HorizontalOptions="Center" VerticalOptions="Center" />
-                </Grid>
-                <Label Text="A" TextColor="White" BackgroundColor="#CC000000" FontAttributes="Bold" FontSize="12" Padding="3,0" HorizontalOptions="Center" VerticalOptions="Start" TranslationY="-16" />
-            </Grid>
-            <Grid x:Name="ComparisonBMarker" IsVisible="False" ZIndex="3" InputTransparent="True">
-                <Border x:Name="ComparisonBAreaVisual" Stroke="#FF00FF" StrokeThickness="2" BackgroundColor="#30FF00FF" />
-                <Grid x:Name="ComparisonBSingleVisual">
-                    <BoxView Color="#FF00FF" WidthRequest="24" HeightRequest="2" HorizontalOptions="Center" VerticalOptions="Center" />
-                    <BoxView Color="#FF00FF" WidthRequest="2" HeightRequest="24" HorizontalOptions="Center" VerticalOptions="Center" />
-                </Grid>
-                <Label Text="B" TextColor="White" BackgroundColor="#CC000000" FontAttributes="Bold" FontSize="12" Padding="3,0" HorizontalOptions="Center" VerticalOptions="Start" TranslationY="-16" />
-            </Grid>
-        </AbsoluteLayout>
-        <VerticalStackLayout Grid.Row="2" Spacing="8">
-            <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="1*,1*" ColumnSpacing="8" RowSpacing="2" HorizontalOptions="Fill">
-                <Button Grid.Row="0" Grid.Column="0" x:Name="SinglePixelButton" Text="Single Pixel" FontSize="12" Padding="4,0" Clicked="OnSinglePixelClicked" HorizontalOptions="Fill" />
-                <Button Grid.Row="0" Grid.Column="1" x:Name="AverageAreaButton" Text="Average Area" FontSize="12" Padding="4,0" Clicked="OnAverageAreaClicked" HorizontalOptions="Fill" />
-                <Label Grid.Row="1" Grid.ColumnSpan="2" x:Name="SelectionSizeLabel" Text="Selection: 72 × 72 px" FontSize="12" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" LineBreakMode="NoWrap" />
-                <Slider Grid.Row="2" Grid.ColumnSpan="2" x:Name="SelectionSizeSlider" Minimum="24" Maximum="72" Value="72" ValueChanged="OnSelectionSizeChanged" HorizontalOptions="Fill" />
-            </Grid>
-            <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="2*,1*,1*" ColumnSpacing="8" RowSpacing="2" HorizontalOptions="Fill">
-                <Label Grid.Row="0" Grid.Column="0" x:Name="WhiteStandardValueLabel" Text="Not set" FontSize="11" TextColor="Gray" HorizontalTextAlignment="Center" LineBreakMode="NoWrap" />
-                <Label Grid.Row="0" Grid.Column="1" x:Name="LabAValueLabel" Text="—" FontSize="11" TextColor="Gray" HorizontalTextAlignment="Center" LineBreakMode="NoWrap" />
-                <Label Grid.Row="0" Grid.Column="2" x:Name="LabBValueLabel" Text="—" FontSize="11" TextColor="Gray" HorizontalTextAlignment="Center" LineBreakMode="NoWrap" />
-                <Button Grid.Row="1" Grid.Column="0" Text="Set as White Standard" Clicked="OnSetWhiteStandardClicked" HorizontalOptions="Fill" />
-                <Button Grid.Row="1" Grid.Column="1" Text="Set A" Clicked="OnSetComparisonAClicked" HorizontalOptions="Fill" />
-                <Button Grid.Row="1" Grid.Column="2" Text="Set B" Clicked="OnSetComparisonBClicked" HorizontalOptions="Fill" />
-            </Grid>
-            <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="8" RowSpacing="4">
-                <Label Grid.Row="0" Grid.Column="0" x:Name="CurrentRgbLabel" Text="RGB" FontSize="16" VerticalTextAlignment="Center" />
-                <Label Grid.Row="0" Grid.Column="1" x:Name="RgbValueLabel" Text="—" FontSize="16" HorizontalTextAlignment="End" VerticalTextAlignment="Center" LineBreakMode="NoWrap" />
-                <Label Grid.Row="1" Grid.Column="0" x:Name="CurrentLabLabel" Text="Lab" FontSize="16" VerticalTextAlignment="Center" />
-                <Label Grid.Row="1" Grid.Column="1" x:Name="LabValueLabel" Text="—" FontSize="16" HorizontalTextAlignment="End" VerticalTextAlignment="Center" LineBreakMode="NoWrap" />
-                <Label Grid.Row="2" Grid.Column="0" Text="ΔE | ΔC" FontSize="12" TextColor="Gray" VerticalTextAlignment="Center" />
-                <Label Grid.Row="2" Grid.Column="1" x:Name="ComparisonValueLabel" Text="Set A and Set B to compare" FontSize="12" TextColor="Gray" HorizontalTextAlignment="End" VerticalTextAlignment="Center" LineBreakMode="NoWrap" />
-            </Grid>
-        </VerticalStackLayout>
-    </Grid>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+			 xmlns:camera="clr-namespace:CommunityToolkit.Maui.Views;assembly=CommunityToolkit.Maui.Camera"
+			 x:Class="MauiJohnWick1.MainPage"
+			 Title="Camera to CIELAB"
+			 Appearing="OnPageAppearing"
+			 Disappearing="OnPageDisappearing">
+
+	<Grid Padding="16"
+		  RowDefinitions="Auto,*,Auto" RowSpacing="12">
+
+		<Button x:Name="TakePhotoButton"
+				Grid.Row="0"
+				Text="Take Photo"
+				Clicked="OnTakePhotoClicked" />
+
+		<AbsoluteLayout x:Name="PhotoCanvas"
+						Grid.Row="1"
+						BackgroundColor="#202020"
+						SizeChanged="OnPhotoCanvasSizeChanged">
+
+			<AbsoluteLayout.GestureRecognizers>
+				<PanGestureRecognizer PanUpdated="OnSelectionPanUpdated" />
+			</AbsoluteLayout.GestureRecognizers>
+
+			<camera:CameraView x:Name="CameraPreview"
+							   IsVisible="False"
+							   MediaCaptured="OnMediaCaptured"
+							   ZIndex="0"
+							   AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All" />
+
+			<Image x:Name="CapturedImage"
+				   Aspect="AspectFit"
+				   IsVisible="False"
+				   ZIndex="1"
+				   AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All" />
+
+			<Border x:Name="SelectionBox"
+					IsVisible="False"
+					InputTransparent="True"
+					ZIndex="2">
+				<Grid>
+					<Border x:Name="AreaSelectionVisual"
+							BackgroundColor="#30FFFFFF"
+							InputTransparent="True"
+							Stroke="#FFFF00" StrokeThickness="2" />
+
+					<Grid x:Name="SinglePixelVisual"
+						  WidthRequest="28" HeightRequest="28"
+						  HorizontalOptions="Center" VerticalOptions="Center"
+						  InputTransparent="True">
+						<BoxView WidthRequest="28" HeightRequest="2"
+								 HorizontalOptions="Center" VerticalOptions="Center"
+								 Color="#FFFF00" />
+						<BoxView WidthRequest="2" HeightRequest="28"
+								 HorizontalOptions="Center" VerticalOptions="Center"
+								 Color="#FFFF00" />
+					</Grid>
+				</Grid>
+			</Border>
+
+			<Grid x:Name="WhiteStandardMarker"
+				  WidthRequest="18" HeightRequest="18"
+				  IsVisible="False" InputTransparent="True" Opacity="0.45" ZIndex="3">
+				<BoxView x:Name="WhiteStandardHorizontal"
+						 WidthRequest="18" HeightRequest="1"
+						 HorizontalOptions="Center" VerticalOptions="Center"
+						 Color="#FFFFFFFF" />
+				<BoxView x:Name="WhiteStandardVertical"
+						 WidthRequest="1" HeightRequest="18"
+						 HorizontalOptions="Center" VerticalOptions="Center"
+						 Color="#FFFFFFFF" />
+			</Grid>
+
+			<Grid x:Name="ComparisonAMarker"
+				  IsVisible="False"
+				  InputTransparent="True" ZIndex="3">
+				<Border x:Name="ComparisonAAreaVisual"
+						BackgroundColor="#3000FF00"
+						Stroke="#00FF00" StrokeThickness="2" />
+				<Grid x:Name="ComparisonASingleVisual">
+					<BoxView WidthRequest="24" HeightRequest="2"
+							 HorizontalOptions="Center" VerticalOptions="Center"
+							 Color="#00FF00" />
+					<BoxView WidthRequest="2" HeightRequest="24"
+							 HorizontalOptions="Center" VerticalOptions="Center"
+							 Color="#00FF00" />
+				</Grid>
+				<Label Padding="3,0"
+					   Text="A"  TextColor="White"
+					   FontAttributes="Bold" FontSize="12"
+					   HorizontalOptions="Center" VerticalOptions="Start"
+					   BackgroundColor="#CC000000"
+					   TranslationY="-16" />
+			</Grid>
+
+			<Grid x:Name="ComparisonBMarker"
+				  IsVisible="False"
+				  InputTransparent="True"
+				  ZIndex="3">
+				<Border x:Name="ComparisonBAreaVisual"
+						BackgroundColor="#30FF00FF"
+						Stroke="#FF00FF" StrokeThickness="2" />
+				<Grid x:Name="ComparisonBSingleVisual">
+					<BoxView WidthRequest="24" HeightRequest="2"
+							 HorizontalOptions="Center" VerticalOptions="Center"
+							 Color="#FF00FF" />
+					<BoxView WidthRequest="2" HeightRequest="24"
+							 HorizontalOptions="Center" VerticalOptions="Center"
+							 Color="#FF00FF" />
+				</Grid>
+				<Label Padding="3,0"
+					   Text="B" TextColor="White"
+					   FontAttributes="Bold" FontSize="12"
+					   HorizontalOptions="Center" VerticalOptions="Start"
+					   BackgroundColor="#CC000000"
+					   TranslationY="-16" />
+			</Grid>
+		</AbsoluteLayout>
+
+		<VerticalStackLayout Grid.Row="2" Spacing="8">
+			<Grid ColumnDefinitions="1*,1*" RowDefinitions="Auto,Auto,Auto"
+				  ColumnSpacing="8" RowSpacing="2" HorizontalOptions="Fill">
+				<Button x:Name="SinglePixelButton"
+						Grid.Row="0" Grid.Column="0"
+						Text="Single Pixel" FontSize="12"
+						Padding="4,0"
+						Clicked="OnSinglePixelClicked"
+						HorizontalOptions="Fill" />
+				<Button x:Name="AverageAreaButton"
+						Grid.Row="0" Grid.Column="1"
+						Text="Average Area" FontSize="12"
+						Padding="4,0"
+						Clicked="OnAverageAreaClicked"
+						HorizontalOptions="Fill" />
+				<Label x:Name="SelectionSizeLabel"
+					   Grid.Row="1" Grid.ColumnSpan="2"
+					   Text="Selection: 72 × 72 px" FontSize="12"
+					   HorizontalTextAlignment="Center" VerticalTextAlignment="Center"
+					   LineBreakMode="NoWrap" />
+				<Slider x:Name="SelectionSizeSlider"
+						Grid.Row="2" Grid.ColumnSpan="2"
+						Minimum="24" Maximum="72"
+						Value="72" ValueChanged="OnSelectionSizeChanged"
+						HorizontalOptions="Fill" />
+			</Grid>
+
+			<Grid ColumnDefinitions="2*,1*,1*" RowDefinitions="Auto,Auto"
+				  ColumnSpacing="8" RowSpacing="2"
+				  HorizontalOptions="Fill">
+				<Label x:Name="WhiteStandardValueLabel"
+					   Grid.Row="0" Grid.Column="0"
+					   Text="Not set" FontSize="11" TextColor="Gray"
+					   HorizontalTextAlignment="Center" VerticalTextAlignment="Center"
+					   LineBreakMode="NoWrap" />
+				<Label x:Name="LabAValueLabel"
+					   Grid.Row="0" Grid.Column="1"
+					   Text="—" FontSize="11" TextColor="Gray"
+					   HorizontalTextAlignment="Center" VerticalTextAlignment="Center"
+					   LineBreakMode="NoWrap" />
+				<Label x:Name="LabBValueLabel"
+					   Grid.Row="0" Grid.Column="2"
+					   Text="—" FontSize="11" TextColor="Gray"
+					   HorizontalTextAlignment="Center" VerticalTextAlignment="Center"
+					   LineBreakMode="NoWrap" />
+				<Button Grid.Row="1" Grid.Column="0"
+						Text="Set as White Standard"
+						Clicked="OnSetWhiteStandardClicked"
+						HorizontalOptions="Fill" />
+				<Button Grid.Row="1" Grid.Column="1"
+						Text="Set A"
+						Clicked="OnSetComparisonAClicked"
+						HorizontalOptions="Fill" />
+				<Button Grid.Row="1" Grid.Column="2"
+						Text="Set B"
+						Clicked="OnSetComparisonBClicked"
+						HorizontalOptions="Fill" />
+			</Grid>
+
+			<Grid ColumnDefinitions="Auto,*"
+				  RowDefinitions="Auto,Auto,Auto"
+				  ColumnSpacing="8"
+				  RowSpacing="4">
+				<Label x:Name="CurrentRgbLabel" Grid.Row="0" Grid.Column="0"
+					   Text="RGB" FontSize="16"
+					   VerticalTextAlignment="Center" />
+				<Label x:Name="RgbValueLabel" Grid.Row="0" Grid.Column="1"
+					   Text="—" FontSize="16"
+					   HorizontalTextAlignment="End" VerticalTextAlignment="Center"
+					   LineBreakMode="NoWrap" />
+				<Label x:Name="CurrentLabLabel" Grid.Row="1" Grid.Column="0"
+					   Text="Lab" FontSize="16"
+					   VerticalTextAlignment="Center" />
+				<Label x:Name="LabValueLabel" Grid.Row="1" Grid.Column="1"
+					   Text="—" FontSize="16"
+					   HorizontalTextAlignment="End" VerticalTextAlignment="Center"
+					   LineBreakMode="NoWrap" />
+				<Label Grid.Row="2" Grid.Column="0"
+					   Text="ΔE | ΔC" FontSize="12"
+					   TextColor="Gray"
+					   VerticalTextAlignment="Center" />
+				<Label x:Name="ComparisonValueLabel" Grid.Row="2" Grid.Column="1"
+					   Text="Set A and Set B to compare" FontSize="12"
+					   TextColor="Gray"
+					   HorizontalTextAlignment="End" VerticalTextAlignment="Center"
+					   LineBreakMode="NoWrap" />
+			</Grid>
+		</VerticalStackLayout>
+	</Grid>
 </ContentPage>
