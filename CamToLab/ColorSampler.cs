@@ -19,6 +19,7 @@ public sealed record ColorSample(
 
 public static class ColorSampler
 {
+    // Decode once for the page and preserve EXIF orientation for coordinate mapping.
     public static SKBitmap Decode(byte[] imageBytes)
     {
         using var data = SKData.CreateCopy(imageBytes);
@@ -33,9 +34,7 @@ public static class ColorSampler
             _ => bitmap
         };
 
-        return orientedBitmap.Width > orientedBitmap.Height
-            ? Rotate(orientedBitmap, 90)
-            : orientedBitmap;
+        return orientedBitmap;
     }
 
     private static SKBitmap Rotate(SKBitmap bitmap, float degrees)
@@ -49,7 +48,7 @@ public static class ColorSampler
             canvas.Translate(0, rotated.Height);
 
         canvas.RotateDegrees(degrees);
-        canvas.DrawBitmap(bitmap, 0, 0);
+        canvas.DrawBitmap(bitmap, 0, 0, new SKSamplingOptions(SKFilterMode.Nearest));
         bitmap.Dispose();
         return rotated;
     }
@@ -63,6 +62,7 @@ public static class ColorSampler
     public static (int Width, int Height) GetImageSize(SKBitmap bitmap) =>
         (bitmap.Width, bitmap.Height);
 
+    // Sampling overloads support both a single pixel and a clipped average area.
     public static ColorSample Sample(byte[] imageBytes, int x, int y, int width, int height, SamplingMode mode)
     {
         using SKBitmap bitmap = Decode(imageBytes);
@@ -131,10 +131,11 @@ public static class ColorSampler
         (double red, double green, double blue) = ToLinearRgb(sample.Red, sample.Green, sample.Blue);
         (double whiteRed, double whiteGreen, double whiteBlue) = ToLinearRgb(whiteStandard.Red, whiteStandard.Green, whiteStandard.Blue);
         (double whiteX, double whiteY, double whiteZ) = ToXyz(whiteRed, whiteGreen, whiteBlue);
-        (double lightness, double a, double b) = ToLabFromLinearRgb(red, green, blue, whiteX / whiteY, 1.0, whiteZ / whiteY);
+        (double lightness, double a, double b) = ToLabFromLinearRgb(red, green, blue, whiteX, whiteY, whiteZ);
         return sample with { Lightness = lightness, A = a, B = b };
     }
 
+    // Color-difference helpers used by the A/B comparison display.
     public static double DeltaE2000(ColorSample first, ColorSample second)
     {
         double c1 = Math.Sqrt(first.A * first.A + first.B * first.B);
@@ -159,6 +160,13 @@ public static class ColorSampler
         double sh = 1 + 0.015 * averageCPrime * t;
         double rt = -2 * Math.Sqrt(Math.Pow(averageCPrime, 7) / (Math.Pow(averageCPrime, 7) + Math.Pow(25, 7))) * Math.Sin(60 * Math.Exp(-Math.Pow((averageH - 275) / 25, 2)) * Math.PI / 180);
         return Math.Sqrt(Math.Pow(deltaL / sl, 2) + Math.Pow(deltaC / sc, 2) + Math.Pow(deltaH / sh, 2) + rt * (deltaC / sc) * (deltaH / sh));
+    }
+
+    public static double DeltaC(ColorSample first, ColorSample second)
+    {
+        double firstChroma = Math.Sqrt(first.A * first.A + first.B * first.B);
+        double secondChroma = Math.Sqrt(second.A * second.A + second.B * second.B);
+        return secondChroma - firstChroma;
     }
 
     private static double Hue(double a, double b)

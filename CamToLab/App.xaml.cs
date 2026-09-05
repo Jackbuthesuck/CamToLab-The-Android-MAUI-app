@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-
-namespace MauiJohnWick1
+﻿namespace MauiJohnWick1
 {
     public partial class App : Application
     {

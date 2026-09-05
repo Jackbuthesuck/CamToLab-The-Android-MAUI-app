@@ -31,7 +31,7 @@
 		<ApplicationTitle>CamtoLab</ApplicationTitle>
 
 		<!-- App Identifier -->
-		<ApplicationId>com.companyname.CamtoLab</ApplicationId>
+		<ApplicationId>com.WazuHonde.CamtoLab</ApplicationId>
 
 		<!-- Versions -->
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
@@ -56,7 +56,9 @@
 
 		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" />
+		<MauiImage Remove="Resources\Images\testcard.png" />
 		<MauiImage Update="Resources\Images\dotnet_bot.png" Resize="True" BaseSize="300,185" />
+		<MauiAsset Include="Resources\Images\testcard.png" LogicalName="testcard.png" />
 		
 		<!-- Custom Fonts -->
 		<MauiFont Include="Resources\Fonts\*" />
@@ -69,11 +71,14 @@
 		<PackageReference Include="CommunityToolkit.Maui.Camera" Version="5.0.0" />
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
-		<PackageReference Include="SkiaSharp" Version="3.119.0" />
+		<PackageReference Include="SkiaSharp" Version="4.148.0" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <MauiXaml Update="MainPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="SettingsPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>
@@ -83,18 +88,15 @@
 		<AndroidSigningKeyStore>CamtoLab-release.keystore</AndroidSigningKeyStore>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-android|AnyCPU'">
-	  <AndroidKeyStore>True</AndroidKeyStore>
-	  <AndroidSigningKeyAlias>WazuHonde</AndroidSigningKeyAlias>
-	  <AndroidSigningKeyPass>Poon2348.</AndroidSigningKeyPass>
-	  <AndroidSigningStorePass>Passwordtoohard12.</AndroidSigningStorePass>
-	</PropertyGroup>
-
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-android|AnyCPU'">
 	  <AndroidKeyStore>True</AndroidKeyStore>
-	  <AndroidSigningKeyAlias>WazuHonde</AndroidSigningKeyAlias>
-	  <AndroidSigningKeyPass>Poon2348.</AndroidSigningKeyPass>
-	  <AndroidSigningStorePass>Passwordtoohard12.</AndroidSigningStorePass>
+	  <AndroidSigningKeyAlias>camtolab</AndroidSigningKeyAlias>
+	  <AndroidSigningKeyPass>$(CAMTOLAB_KEY_PASSWORD)</AndroidSigningKeyPass>
+	  <AndroidSigningStorePass>$(CAMTOLAB_STORE_PASSWORD)</AndroidSigningStorePass>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-android|AnyCPU'">
+	  <AndroidKeyStore>False</AndroidKeyStore>
 	</PropertyGroup>
 
 	<Target Name="ReconnectAndroidDevice" BeforeTargets="Install" Condition="'$(TargetFramework)' == 'net10.0-android' and Exists('$(AndroidAdbPath)')">
